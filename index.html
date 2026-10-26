@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#102a43">
+<title>WORPRO — Service Booking</title>
+<style>
+:root{--navy:#102a43;--blue:#1769aa;--gold:#f2b544;--bg:#f3f6fa;--card:#fff;--text:#172b4d;--muted:#62748a;--line:#dce4ed;--red:#b42318;--green:#067647}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:linear-gradient(135deg,var(--navy),#1769aa);color:white;padding:22px 16px 26px}header .wrap,main{max-width:1000px;margin:auto}
+.brand{font-size:27px;font-weight:900;letter-spacing:1.5px}.tag{opacity:.9;margin-top:4px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+main{padding:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin:0 0 14px;box-shadow:0 5px 18px #102a430a}
+h2{font-size:20px;margin:0 0 12px}h3{font-size:16px;margin:0 0 8px}.muted{color:var(--muted);font-size:14px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+label{display:block;font-weight:650;font-size:14px;margin:10px 0 5px}input,select,textarea{width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:12px;font:inherit;background:white;color:var(--text)}textarea{min-height:78px}
+button{border:0;border-radius:10px;padding:11px 15px;font:inherit;font-weight:700;cursor:pointer;background:var(--blue);color:white}button.secondary{background:#e8eef5;color:var(--navy)}button.warn{background:#fff0ed;color:var(--red)}button:disabled{opacity:.5}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.tabs button{background:#e4ebf3;color:var(--navy)}.tabs button.active{background:var(--navy);color:white}
+.notice{padding:12px;border-radius:10px;background:#fff7df;border:1px solid #f2d48a;margin:12px 0;font-size:14px}.success{background:#e9f8ef;border-color:#a6dfbb}.error{background:#fff0ed;border-color:#f2b8b5}
+.hidden{display:none!important}.pill{display:inline-block;padding:4px 9px;border-radius:99px;background:#e7eff8;font-size:12px;font-weight:700}.service{border:1px solid var(--line);border-radius:12px;padding:14px}.service .emoji{font-size:26px}.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.item{border-bottom:1px solid var(--line);padding:12px 0}.item:last-child{border-bottom:0}.footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
+</style>
+</head>
+<body>
+<header><div class="wrap"><div class="top"><div><div class="brand">WORPRO</div><div class="tag" data-hi="आपके शहर की सर्विस, एक जगह" data-en="Local services, all in one place">आपके शहर की सर्विस, एक जगह</div></div><select id="lang" aria-label="Language" style="width:auto"><option value="hi">हिंदी</option><option value="en">English</option></select></div></div></header>
+<main>
+<div id="setupNotice" class="notice"><b>सेटअप बाकी है:</b> यह WORPRO का शुरुआती वेब ऐप है। ऑनलाइन लॉगिन और डेटा के लिए README के अनुसार Supabase कॉन्फ़िगरेशन जोड़ें। बिना कॉन्फ़िगरेशन के केवल डेमो मोड चलेगा; यह लाइव बुकिंग सेवा नहीं है।</div>
+<section id="auth" class="card">
+<h2 data-hi="लॉगिन / नया अकाउंट" data-en="Login / Create account">लॉगिन / नया अकाउंट</h2>
+<div class="grid">
+<div><label data-hi="ईमेल" data-en="Email">ईमेल</label><input id="email" type="email" autocomplete="email" placeholder="you@example.com"></div>
+<div><label data-hi="पासवर्ड" data-en="Password">पासवर्ड</label><input id="password" type="password" autocomplete="current-password" minlength="8" placeholder="कम से कम 8 अक्षर"></div>
+</div>
+<div class="actions"><button id="loginBtn" data-hi="लॉगिन" data-en="Login">लॉगिन</button><button id="signupBtn" class="secondary" data-hi="नया अकाउंट बनाएँ" data-en="Create account">नया अकाउंट बनाएँ</button><button id="logoutBtn" class="secondary hidden" data-hi="लॉगआउट" data-en="Log out">लॉगआउट</button></div>
+<div class="muted" style="margin-top:8px" data-hi="सुरक्षा के लिए अपना असली पासवर्ड किसी से साझा न करें।" data-en="Never share your password with anyone.">सुरक्षा के लिए अपना असली पासवर्ड किसी से साझा न करें।</div>
+</section>
+<div id="app" class="hidden">
+<div class="row card"><div><div class="muted" data-hi="लॉगिन अकाउंट" data-en="Signed-in account">लॉगिन अकाउंट</div><b id="userEmail"></b><div id="roleText" class="muted"></div></div><span class="pill">WORPRO</span></div>
+<div class="tabs" id="tabs">
+<button class="active" data-tab="customer" data-hi="ग्राहक बुकिंग" data-en="Customer booking">ग्राहक बुकिंग</button>
+<button data-tab="worker" data-hi="वर्कर" data-en="Worker">वर्कर</button>
+<button data-tab="orders" data-hi="मेरी बुकिंग" data-en="My bookings">मेरी बुकिंग</button>
+<button data-tab="admin" data-hi="एडमिन पैनल" data-en="Admin panel">एडमिन पैनल</button>
+</div>
+<section id="tab-customer" class="card">
+<h2 data-hi="नई सर्विस बुक करें" data-en="Book a service">नई सर्विस बुक करें</h2>
+<div class="grid">
+<div><label data-hi="सर्विस" data-en="Service">सर्विस</label><select id="service">
+<option value="Plumbing">प्लंबिंग / Plumbing</option><option value="Electrician">इलेक्ट्रीशियन / Electrician</option><option value="AC Repair">AC रिपेयर / AC repair</option><option value="Carpenter">कारपेंटर / Carpenter</option><option value="Painting">पेंटिंग / Painting</option><option value="Cleaning">क्लीनिंग / Cleaning</option><option value="Appliance Repair">घरेलू उपकरण / Appliance repair</option><option value="Other">अन्य / Other</option></select></div>
+<div><label data-hi="आपका नाम" data-en="Your name">आपका नाम</label><input id="custName" maxlength="100" placeholder="नाम"></div>
+<div><label data-hi="मोबाइल नंबर (केवल एडमिन के लिए)" data-en="Phone (admin only)">मोबाइल नंबर (केवल एडमिन के लिए)</label><input id="custPhone" inputmode="tel" maxlength="15" placeholder="मोबाइल नंबर"></div>
+<div><label data-hi="बुकिंग की तारीख" data-en="Preferred date">बुकिंग की तारीख</label><input id="date" type="date"></div>
+</div>
+<label data-hi="पता / क्षेत्र (केवल एडमिन के लिए)" data-en="Address / area (admin only)">पता / क्षेत्र (केवल एडमिन के लिए)</label><textarea id="address" maxlength="500" placeholder="इलाका और पता"></textarea>
+<label data-hi="काम की जानकारी" data-en="Work details">काम की जानकारी</label><textarea id="details" maxlength="1000" placeholder="क्या काम करवाना है?"></textarea>
+<div class="actions"><button id="bookBtn" data-hi="बुकिंग भेजें" data-en="Submit booking">बुकिंग भेजें</button></div>
+<div class="muted" data-hi="वर्कर को केवल संबंधित काम और बुकिंग की ज़रूरी जानकारी दिखनी चाहिए; ग्राहक का नंबर/पूरा पता साझा न करें।" data-en="Workers should only see relevant job details; do not share the customer's phone or full address.">वर्कर को केवल संबंधित काम और बुकिंग की ज़रूरी जानकारी दिखनी चाहिए; ग्राहक का नंबर/पूरा पता साझा न करें।</div>
+</section>
+<section id="tab-worker" class="card hidden">
+<h2 data-hi="वर्कर रजिस्ट्रेशन" data-en="Worker registration">वर्कर रजिस्ट्रेशन</h2>
+<div class="notice">₹25 रजिस्ट्रेशन फीस का रिकॉर्ड रखा जाएगा। इस डेमो में कोई वास्तविक भुगतान नहीं लिया जाता।</div>
+<div class="grid"><div><label data-hi="पूरा नाम" data-en="Full name">पूरा नाम</label><input id="workerName" maxlength="100"></div><div><label data-hi="मोबाइल नंबर" data-en="Phone number">मोबाइल नंबर</label><input id="workerPhone" inputmode="tel" maxlength="15"></div><div><label data-hi="सर्विस" data-en="Service">सर्विस</label><select id="workerService"><option>Plumbing</option><option>Electrician</option><option>AC Repair</option><option>Carpenter</option><option>Painting</option><option>Cleaning</option><option>Appliance Repair</option><option>Other</option></select></div><div><label data-hi="अनुभव (वर्ष)" data-en="Experience (years)">अनुभव (वर्ष)</label><input id="experience" type="number" min="0" max="60"></div></div>
+<label data-hi="इलाका" data-en="Area">इलाका</label><input id="workerArea" maxlength="150">
+<div class="actions"><button id="workerApply" data-hi="रजिस्ट्रेशन भेजें" data-en="Submit registration">रजिस्ट्रेशन भेजें</button></div><div id="workerState" class="muted"></div>
+</section>
+<section id="tab-orders" class="card hidden"><h2 data-hi="मेरी बुकिंग" data-en="My bookings">मेरी बुकिंग</h2><div class="actions"><button id="refreshBtn" class="secondary" data-hi="रीफ्रेश" data-en="Refresh">रीफ्रेश</button></div><div id="ordersList" class="muted">अभी कोई रिकॉर्ड लोड नहीं हुआ।</div></section>
+<section id="tab-admin" class="card hidden">
+<h2 data-hi="एडमिन कंट्रोल पैनल" data-en="Admin control panel">एडमिन कंट्रोल पैनल</h2>
+<div class="notice error"><b>महत्वपूर्ण:</b> एडमिन अधिकार सिर्फ डेटाबेस में सुरक्षित रूप से नियुक्त किए गए अकाउंट को मिलेंगे। इस स्क्रीन पर बटन दिखने से किसी को एडमिन अधिकार नहीं मिलते।</div>
+<div id="adminLock" data-hi="यह पैनल केवल स्वीकृत एडमिन के लिए है।" data-en="This panel is restricted to approved admins.">यह पैनल केवल स्वीकृत एडमिन के लिए है।</div>
+<div id="adminData" class="hidden"><div class="actions"><button id="loadAdmin" data-hi="रिकॉर्ड लोड करें" data-en="Load records">रिकॉर्ड लोड करें</button></div><div id="adminList"></div></div>
+</section>
+</div>
+<div id="message" class="notice hidden" role="status"></div>
+<div class="card"><h3 data-hi="सिस्टम की स्थिति" data-en="System status">सिस्टम की स्थिति</h3><div id="status" class="muted">डेमो मोड — Supabase सेट नहीं है।</div></div>
+<div class="footer">WORPRO • शुरुआती प्रोजेक्ट • लाइव लॉन्च से पहले सुरक्षा और वास्तविक डिवाइस पर परीक्षण आवश्यक</div>
+</main>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+// SETUP: Add your own Supabase project URL and publishable/anon key here.
+// Never put a service_role key, database password, or private API secret in this file.
+const SUPABASE_URL = '';
+const SUPABASE_ANON_KEY = '';
+const configured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
+const supabase = configured ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+let currentUser = null, currentRole = 'customer', language = 'hi';
+const $ = id => document.getElementById(id);
+const say = (hi,en) => language === 'hi' ? hi : en;
+function message(text, error=false){ $('message').textContent=text; $('message').classList.remove('hidden','error','success'); $('message').classList.add(error?'error':'success'); window.scrollTo({top:0,behavior:'smooth'}); }
+function status(text){ $('status').textContent=text; }
+function tr(el){const hi=el.dataset.hi,en=el.dataset.en;if(hi&&en)el.textContent=language==='hi'?hi:en;}
+$('lang').addEventListener('change',e=>{language=e.target.value;document.documentElement.lang=language;document.querySelectorAll('[data-hi][data-en]').forEach(tr);});
+document.querySelectorAll('#tabs button').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('active',b===btn));['customer','worker','orders','admin'].forEach(t=>$('tab-'+t).classList.toggle('hidden',t!==btn.dataset.tab));}));
+async function refreshSession(){
+ if(!configured){$('setupNotice').classList.remove('hidden');status('डेमो मोड। README में Supabase सेटअप पूरा करने पर ऑनलाइन लॉगिन/डेटा चालू होगा।');return;}
+ $('setupNotice').classList.add('hidden');
+ const {data:{session}}=await supabase.auth.getSession(); currentUser=session?.user||null;
+ $('auth').classList.toggle('hidden',!!currentUser); $('app').classList.toggle('hidden',!currentUser);
+ if(currentUser){$('userEmail').textContent=currentUser.email||'';await loadRole();} else {$('logoutBtn').classList.add('hidden');}
+}
+async function loadRole(){
+ const {data,error}=await supabase.from('profiles').select('role,display_name').eq('id',currentUser.id).maybeSingle();
+ if(error){currentRole='customer';$('roleText').textContent='';return;}
+ currentRole=data?.role||'customer';$('roleText').textContent=say('भूमिका: ','Role: ')+currentRole;
+ $('adminData').classList.toggle('hidden',currentRole!=='admin');$('adminLock').classList.toggle('hidden',currentRole==='admin');
+}
+$('signupBtn').onclick=async()=>{if(!configured)return message('पहले README के अनुसार Supabase URL और publishable/anon key सेट करें।',true);
+ const email=$('email').value.trim(),password=$('password').value;
+ if(!email||password.length<8)return message('ईमेल भरें और कम से कम 8 अक्षर का पासवर्ड रखें।',true);
+ const {error}=await supabase.auth.signUp({email,password,options:{emailRedirectTo:location.href}});
+ if(error)return message(error.message,true);message('अकाउंट बनाने का अनुरोध भेजा गया। ईमेल पुष्टि की ज़रूरत हो सकती है।');};
+$('loginBtn').onclick=async()=>{if(!configured)return message('पहले README के अनुसार Supabase सेटअप करें।',true);
+ const {error}=await supabase.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});
+ if(error)return message(error.message,true);await refreshSession();message('लॉगिन सफल।');};
+$('logoutBtn').onclick=async()=>{if(configured)await supabase.auth.signOut();currentUser=null;await refreshSession();message('लॉगआउट हो गया।');};
+$('bookBtn').onclick=async()=>{if(!configured)return message('डेमो मोड में लाइव बुकिंग सेव नहीं होती। Supabase सेटअप करें।',true);
+ if(!currentUser)return message('पहले लॉगिन करें।',true);
+ const payload={customer_id:currentUser.id,service_name:$('service').value,customer_name:$('custName').value.trim(),customer_phone:$('custPhone').value.trim(),service_date:$('date').value||null,customer_address:$('address').value.trim(),work_details:$('details').value.trim(),status:'new'};
+ if(!payload.customer_name||!payload.customer_phone||!payload.work_details)return message('नाम, मोबाइल नंबर और काम की जानकारी भरें।',true);
+ const {error}=await supabase.from('bookings').insert(payload);
+ if(error)return message('बुकिंग सेव नहीं हुई: '+error.message,true);message('बुकिंग दर्ज हो गई। टीम द्वारा पुष्टि के बाद आगे की जानकारी मिलेगी।');};
+$('workerApply').onclick=async()=>{if(!configured)return message('डेमो मोड में रजिस्ट्रेशन सेव नहीं होता। Supabase सेटअप करें।',true);
+ if(!currentUser)return message('पहले अकाउंट बनाएँ और लॉगिन करें।',true);
+ const payload={user_id:currentUser.id,full_name:$('workerName').value.trim(),phone:$('workerPhone').value.trim(),service_name:$('workerService').value,experience_years:Number($('experience').value||0),area:$('workerArea').value.trim(),registration_fee_due:25,status:'pending'};
+ if(!payload.full_name||!payload.phone)return message('नाम और मोबाइल नंबर भरें।',true);
+ const {error}=await supabase.from('worker_applications').upsert(payload,{onConflict:'user_id'});
+ if(error)return message('रजिस्ट्रेशन सेव नहीं हुआ: '+error.message,true);$('workerState').textContent='आवेदन भेज दिया गया है; एडमिन की मंज़ूरी बाकी है।';message('वर्कर आवेदन भेज दिया गया।');};
+async function loadOrders(){if(!configured||!currentUser)return;
+ const {data,error}=await supabase.from('bookings').select('id,service_name,service_date,status,created_at').order('created_at',{ascending:false}).limit(50);
+ if(error){$('ordersList').textContent=error.message;return;}
+ $('ordersList').innerHTML=data?.length?data.map(o=>`<div class="item"><div class="row"><b>${escapeHtml(o.service_name)}</b><span class="pill">${escapeHtml(o.status)}</span></div><div class="muted">ID: ${escapeHtml(o.id)} • ${escapeHtml(o.service_date||'तारीख तय नहीं')}</div></div>`).join(''):'अभी कोई बुकिंग नहीं है।';}
+function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+$('refreshBtn').onclick=loadOrders;
+$('loadAdmin').onclick=async()=>{if(currentRole!=='admin')return message('अनुमति नहीं है।',true);
+ const {data,error}=await supabase.from('admin_booking_view').select('*').order('created_at',{ascending:false}).limit(100);
+ if(error)return message('एडमिन डेटा नहीं मिला: '+error.message,true);
+ $('adminList').innerHTML=data?.length?data.map(o=>`<div class="item"><div class="row"><b>${escapeHtml(o.service_name)} — ${escapeHtml(o.customer_name)}</b><span class="pill">${escapeHtml(o.status)}</span></div><div class="muted">फोन: ${escapeHtml(o.customer_phone)} • तारीख: ${escapeHtml(o.service_date||'—')}</div><div>${escapeHtml(o.work_details)}</div></div>`).join(''):'कोई बुकिंग नहीं मिली।';};
+if(configured){supabase.auth.onAuthStateChange(()=>setTimeout(refreshSession,0));}
+await refreshSession();
+</script>
+</body></html>

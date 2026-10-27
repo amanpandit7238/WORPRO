@@ -166,9 +166,6 @@ $('loginBtn').onclick = async () => {
   await refreshSession();
   message('लॉगिन सफल।');
 };
-};'loginBtn').onclick=async()=>{if(!configured)return message('पहले README के अनुसार Supabase सेटअप करें।',true);
- const {error}=await supabase.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});
- if(error)return message(error.message,true);await refreshSession();message('लॉगिन सफल।');};
 $('logoutBtn').onclick=async()=>{if(configured)await supabase.auth.signOut();currentUser=null;await refreshSession();message('लॉगआउट हो गया।');};
 $('bookBtn').onclick=async()=>{if(!configured)return message('डेमो मोड में लाइव बुकिंग सेव नहीं होती। Supabase सेटअप करें।',true);
  if(!currentUser)return message('पहले लॉगिन करें।',true);

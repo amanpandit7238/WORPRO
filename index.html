@@ -94,6 +94,11 @@ async function refreshSession(){
  if(!configured){$('setupNotice').classList.remove('hidden');status('डेमो मोड। README में Supabase सेटअप पूरा करने पर ऑनलाइन लॉगिन/डेटा चालू होगा।');return;}
  $('setupNotice').classList.add('hidden');
  const {data:{session}}=await supabase.auth.getSession(); currentUser=session?.user||null;
+ supabase.auth.getSession().then(({ data, error }) => {
+  console.log("Supabase connection test:", error ? error.message : "OK");
+  document.getElementById("status").textContent =
+    error ? "Supabase त्रुटि: " + error.message : "Supabase कनेक्शन OK";
+});
  $('auth').classList.toggle('hidden',!!currentUser); $('app').classList.toggle('hidden',!currentUser);
  if(currentUser){$('userEmail').textContent=currentUser.email||'';await loadRole();} else {$('logoutBtn').classList.add('hidden');}
 }

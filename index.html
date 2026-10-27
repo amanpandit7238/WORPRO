@@ -135,5 +135,6 @@ $('loadAdmin').onclick=async()=>{if(currentRole!=='admin')return message('अन
  $('adminList').innerHTML=data?.length?data.map(o=>`<div class="item"><div class="row"><b>${escapeHtml(o.service_name)} — ${escapeHtml(o.customer_name)}</b><span class="pill">${escapeHtml(o.status)}</span></div><div class="muted">फोन: ${escapeHtml(o.customer_phone)} • तारीख: ${escapeHtml(o.service_date||'—')}</div><div>${escapeHtml(o.work_details)}</div></div>`).join(''):'कोई बुकिंग नहीं मिली।';};
 if(configured){supabase.auth.onAuthStateChange(()=>setTimeout(refreshSession,0));}
 await refreshSession();
+ console.log("WORPRO TEST OK");
 </script>
 </body></html>

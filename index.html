@@ -111,16 +111,30 @@ async function loadRole(){
  currentRole=data?.role||'customer';$('roleText').textContent=say('भूमिका: ','Role: ')+currentRole;
  $('adminData').classList.toggle('hidden',currentRole!=='admin');$('adminLock').classList.toggle('hidden',currentRole==='admin');
 }
-$('signupBtn').onclick=async()=>{if(!configured)return message('पहले README के अनुसार Supabase URL और publishable/anon key सेट करें।',true);
- const email=$('email').value.trim(),password=$('password').value;
- if(!email||password.length<8)return message('ईमेल भरें और कम से कम 8 अक्षर का पासवर्ड रखें।',true);
- const {error}=await supabase.auth.signUp({email,password,options:{emailRedirectTo:location.href}});
- if(error)return message(error.message,true);message('अकाउंट बनाने का अनुरोध भेजा गया। ईमेल पुष्टि की ज़रूरत हो सकती है।');}
-  $('resetPasswordBtn').onclick = async () => {
+  
+$('signupBtn').onclick = async () => {
   if (!configured) {
     return message('Supabase सेटअप पूरा नहीं है।', true);
   }
 
+  const email = $('email').value.trim();
+  const password = $('password').value;
+
+  if (!email || password.length < 8) {
+    return message('ईमेल भरें और कम से कम 8 अक्षर का पासवर्ड रखें।', true);
+  }
+
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: { emailRedirectTo: location.href }
+  });
+
+  if (error) return message(error.message, true);
+  message('अकाउंट बनाने का अनुरोध भेजा गया। ईमेल पुष्टि की ज़रूरत हो सकती है।');
+};
+
+$('resetPasswordBtn').onclick = async () => {
   const email = $('email').value.trim();
 
   if (!email) {
@@ -135,7 +149,22 @@ $('signupBtn').onclick=async()=>{if(!configured)return message('पहले REA
     return message('रीसेट ईमेल नहीं भेजा गया: ' + error.message, true);
   }
 
-  message('पासवर्ड रीसेट करने का लिंक आपके ईमेल पर भेज दिया गया है।');
+  message('पासवर्ड रीसेट करने का लिंक ईमेल पर भेज दिया गया है।');
+};
+
+$('loginBtn').onclick = async () => {
+  if (!configured) {
+    return message('Supabase सेटअप पूरा नहीं है।', true);
+  }
+
+  const { error } = await supabase.auth.signInWithPassword({
+    email: $('email').value.trim(),
+    password: $('password').value
+  });
+
+  if (error) return message(error.message, true);
+  await refreshSession();
+  message('लॉगिन सफल।');
 };
 };'loginBtn').onclick=async()=>{if(!configured)return message('पहले README के अनुसार Supabase सेटअप करें।',true);
  const {error}=await supabase.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});

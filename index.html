@@ -77,7 +77,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 // SETUP: Add your own Supabase project URL and publishable/anon key here.
 // Never put a service_role key, database password, or private API secret in this file.
 const SUPABASE_URL = 'https://ejilquxcccxucnvktmgy.supabase.co';
-const SUPABASE_ANON_KEY = '';sb_publishable_x6lS9XO1tokibmVGHm1f-Q_Qp0PmTGC
+const SUPABASE_ANON_KEY = 'sb_publishable_x6lS9XO1tokibmVGHm1f-Q_Qp0PmTGC';
 const configured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 const supabase = configured ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 let currentUser = null, currentRole = 'customer', language = 'hi';

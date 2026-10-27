@@ -28,7 +28,9 @@ button{border:0;border-radius:10px;padding:11px 15px;font:inherit;font-weight:70
 <div><label data-hi="ईमेल" data-en="Email">ईमेल</label><input id="email" type="email" autocomplete="email" placeholder="you@example.com"></div>
 <div><label data-hi="पासवर्ड" data-en="Password">पासवर्ड</label><input id="password" type="password" autocomplete="current-password" minlength="8" placeholder="कम से कम 8 अक्षर"></div>
 </div>
-<div class="actions"><button id="loginBtn" data-hi="लॉगिन" data-en="Login">लॉगिन</button><button id="signupBtn" class="secondary" data-hi="नया अकाउंट बनाएँ" data-en="Create account">नया अकाउंट बनाएँ</button><button id="logoutBtn" class="secondary hidden" data-hi="लॉगआउट" data-en="Log out">लॉगआउट</button></div>
+<div class="actions"><button id="loginBtn" data-hi="लॉगिन" data-en="Login">लॉगिन</button><button id="signupBtn" class="secondary" data-hi="नया अकाउंट बनाएँ" data-en="Create account">नया अकाउंट बनाएँ</button><button id="logoutBtn" class="secondary hidden" data-hi="लॉगआउट" data-en="Log out">लॉगआउट</button><button id="resetPasswordBtn" class="secondary">
+  पासवर्ड भूल गए?
+</button>v>
 <div class="muted" style="margin-top:8px" data-hi="सुरक्षा के लिए अपना असली पासवर्ड किसी से साझा न करें।" data-en="Never share your password with anyone.">सुरक्षा के लिए अपना असली पासवर्ड किसी से साझा न करें।</div>
 </section>
 <div id="app" class="hidden">
@@ -113,7 +115,27 @@ $('signupBtn').onclick=async()=>{if(!configured)return message('पहले REA
  if(!email||password.length<8)return message('ईमेल भरें और कम से कम 8 अक्षर का पासवर्ड रखें।',true);
  const {error}=await supabase.auth.signUp({email,password,options:{emailRedirectTo:location.href}});
  if(error)return message(error.message,true);message('अकाउंट बनाने का अनुरोध भेजा गया। ईमेल पुष्टि की ज़रूरत हो सकती है।');};
-$('loginBtn').onclick=async()=>{if(!configured)return message('पहले README के अनुसार Supabase सेटअप करें।',true);
+$('resetPasswordBtn').onclick = async () => {
+  if (!configured) {
+    return message('Supabase सेटअप पूरा नहीं है।', true);
+  }
+
+  const email = $('email').value.trim();
+
+  if (!email) {
+    return message('पहले अपना ईमेल भरें।', true);
+  }
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: 'https://amanpandit7238.github.io/WORPRO/'
+  });
+
+  if (error) {
+    return message('रीसेट ईमेल नहीं भेजा गया: ' + error.message, true);
+  }
+
+  message('पासवर्ड रीसेट करने का लिंक आपके ईमेल पर भेज दिया गया है।');
+};'loginBtn').onclick=async()=>{if(!configured)return message('पहले README के अनुसार Supabase सेटअप करें।',true);
  const {error}=await supabase.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});
  if(error)return message(error.message,true);await refreshSession();message('लॉगिन सफल।');};
 $('logoutBtn').onclick=async()=>{if(configured)await supabase.auth.signOut();currentUser=null;await refreshSession();message('लॉगआउट हो गया।');};

@@ -79,7 +79,8 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const SUPABASE_URL = 'https://ejilquxcccxucnvktmgy.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_x6lS9XO1tokibmVGHm1f-Q_Qp0PmTGC';
 const configured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
-const supabase = configured ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+console.log("WORPRO Supabase configured:", configured);
+ const supabase = configured ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 let currentUser = null, currentRole = 'customer', language = 'hi';
 const $ = id => document.getElementById(id);
 const say = (hi,en) => language === 'hi' ? hi : en;

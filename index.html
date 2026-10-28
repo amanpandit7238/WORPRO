@@ -279,7 +279,16 @@ if (configured) {
     setTimeout(() => refreshSession(), 0);
   });
 }
-await refreshSession();
- console.log("WORPRO TEST OK");
+const isRecoveryLink =
+  window.location.hash.includes('type=recovery') ||
+  window.location.search.includes('type=recovery');
+
+if (isRecoveryLink) {
+  showPasswordRecovery();
+} else {
+  await refreshSession();
+}
+
+console.log("WORPRO TEST OK");
 </script>
 </body></html>

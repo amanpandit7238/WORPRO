@@ -178,7 +178,12 @@ function showPasswordRecovery() {
     error ? "Supabase त्रुटि: " + error.message : "Supabase कनेक्शन OK";
 });
  $('auth').classList.toggle('hidden',!!currentUser); $('app').classList.toggle('hidden',!currentUser);
- if(currentUser){$('userEmail').textContent=currentUser.email||'';await loadRole();} else {$('logoutBtn').classList.add('hidden');}
+if (currentUser) {
+  $('userEmail').textContent = currentUser.email || '';
+  $('logoutBtn').classList.remove('hidden');
+  await loadRole();
+} else {
+  $('logoutBtn').classList.add('hidden');
 }
 async function loadRole(){
  const {data,error}=await supabase.from('profiles').select('role,display_name').eq('id',currentUser.id).maybeSingle();

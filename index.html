@@ -187,6 +187,8 @@ if (currentUser) {
 } else {
   $('logoutBtn').classList.add('hidden');
 }
+}
+
 async function loadRole(){
  const {data,error}=await supabase.from('profiles').select('role,display_name').eq('id',currentUser.id).maybeSingle();
  if(error){currentRole='customer';$('roleText').textContent='';return;}

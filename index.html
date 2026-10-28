@@ -98,8 +98,8 @@ async function refreshSession(){
  const {data:{session}}=await supabase.auth.getSession(); currentUser=session?.user||null;
  supabase.auth.getSession().then(({ data, error }) => {
   console.log("Supabase connection test:", error ? error.message : "OK");
+  console.log("WORPRO configured:", configured, SUPABASE_URL, SUPABASE_ANON_KEY ? "KEY मौजूद है" : "KEY गायब है");
   document.getElementById("status").textContent =
-    console.log("WORPRO configured:", configured, SUPABASE_URL, SUPABASE_ANON_KEY ? "KEY मौजूद है" : "KEY गायब है");
     error ? "Supabase त्रुटि: " + error.message : "Supabase कनेक्शन OK";
 });
  $('auth').classList.toggle('hidden',!!currentUser); $('app').classList.toggle('hidden',!currentUser);

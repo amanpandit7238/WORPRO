@@ -261,7 +261,7 @@ $('workerApply').onclick=async()=>{if(!configured)return message('डेमो �
  if(!currentUser)return message('पहले अकाउंट बनाएँ और लॉगिन करें।',true);
  const payload={user_id:currentUser.id,full_name:$('workerName').value.trim(),phone:$('workerPhone').value.trim(),service_name:$('workerService').value,experience_years:Number($('experience').value||0),area:$('workerArea').value.trim(),registration_fee_due:25,status:'pending'};
  if(!payload.full_name||!payload.phone)return message('नाम और मोबाइल नंबर भरें।',true);
- const {error}=await supabase.from('worker_applications').upsert(payload,{onConflict:'user_id'});
+ const {error}=await supabase.from('worker_applications').insert(payload);
  if(error)return message('रजिस्ट्रेशन सेव नहीं हुआ: '+error.message,true);$('workerState').textContent='आवेदन भेज दिया गया है; एडमिन की मंज़ूरी बाकी है।';message('वर्कर आवेदन भेज दिया गया।');};
 async function loadOrders(){if(!configured||!currentUser)return;
  const {data,error}=await supabase.from('bookings').select('id,service_name,service_date,status,created_at').order('created_at',{ascending:false}).limit(50);

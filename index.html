@@ -275,7 +275,37 @@ async function loadOrders(){if(!configured||!currentUser)return;
  $('ordersList').innerHTML=data?.length?data.map(o=>`<div class="item"><div class="row"><b>${escapeHtml(o.service_name)}</b><span class="pill">${escapeHtml(o.status)}</span></div><div class="muted">ID: ${escapeHtml(o.id)} • ${escapeHtml(o.service_date||'तारीख तय नहीं')}</div></div>`).join(''):'अभी कोई बुकिंग नहीं है।';}
 function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 $('refreshBtn').onclick=loadOrders;
-$('loadAdmin').onclick=async()=>{if(currentRole!=='admin')return message('अनुमति नहीं है।',true);
+async function loadWorkerApplications(){
+  if(currentRole !== 'admin'){
+    return message('अनुमति नहीं है।',true);
+  }
+
+  const {data,error}=await supabase
+    .from('worker_applications')
+    .select('id,user_id,full_name,phone,service_name,experience_years,area,status,created_at')
+    .order('created_at',{ascending:false})
+    .limit(100);
+
+  if(error){
+    $('workerAdminList').textContent='वर्कर डेटा नहीं मिला: '+error.message;
+    return;
+  }
+
+  $('workerAdminList').innerHTML=data?.length
+    ? data.map(w=>`
+      <div class="item">
+        <b>${escapeHtml(w.full_name)}</b>
+        <div>सर्विस: ${escapeHtml(w.service_name)}</div>
+        <div>फोन: ${escapeHtml(w.phone)}</div>
+        <div>अनुभव: ${escapeHtml(w.experience_years)} वर्ष</div>
+        <div>क्षेत्र: ${escapeHtml(w.area)}</div>
+        <div>स्थिति: ${escapeHtml(w.status)}</div>
+      </div>
+    `).join('')
+    : 'कोई वर्कर रिक्वेस्ट नहीं मिली।';
+}
+$('loadAdmin').onclick=async()=>{if(currentRole!=='admin')return message('अनुमति नहीं है।',true)
+  await loadWorkerApplications();
  const {data,error}=await supabase.from('admin_booking_view').select('*').order('created_at',{ascending:false}).limit(100);
  if(error)return message('एडमिन डेटा नहीं मिला: '+error.message,true);
  $('adminList').innerHTML=data?.length?data.map(o=>`<div class="item"><div class="row"><b>${escapeHtml(o.service_name)} — ${escapeHtml(o.customer_name)}</b><span class="pill">${escapeHtml(o.status)}</span></div><div class="muted">फोन: ${escapeHtml(o.customer_phone)} • तारीख: ${escapeHtml(o.service_date||'—')}</div><div>${escapeHtml(o.work_details)}</div></div>`).join(''):'कोई बुकिंग नहीं मिली।';};

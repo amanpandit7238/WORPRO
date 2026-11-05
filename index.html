@@ -28,13 +28,16 @@ button{border:0;border-radius:10px;padding:11px 15px;font:inherit;font-weight:70
 <div><label data-hi="ईमेल" data-en="Email">ईमेल</label><input id="email" type="email" autocomplete="email" placeholder="you@example.com"></div>
 <div><label data-hi="पासवर्ड" data-en="Password">पासवर्ड</label><input id="password" type="password" autocomplete="current-password" minlength="8" placeholder="कम से कम 8 अक्षर"></div>
 </div>
-<div class="actions"><button id="loginBtn" data-hi="लॉगिन" data-en="Login">लॉगिन</button><button id="signupBtn" class="secondary" data-hi="नया अकाउंट बनाएँ" data-en="Create account">नया अकाउंट बनाएँ</button><button id="logoutBtn" class="secondary hidden" data-hi="लॉगआउट" data-en="Log out">लॉगआउट</button><button id="resetPasswordBtn" class="secondary">
+<div class="actions"><button id="loginBtn" data-hi="लॉगिन" data-en="Login">लॉगिन</button><button id="signupBtn" class="secondary" data-hi="नया अकाउंट बनाएँ" data-en="Create account">नया अकाउंट बनाएँ</button><button id="resetPasswordBtn" class="secondary">
   पासवर्ड भूल गए?
 </button></div>
 <div class="muted" style="margin-top:8px" data-hi="सुरक्षा के लिए अपना असली पासवर्ड किसी से साझा न करें।" data-en="Never share your password with anyone.">सुरक्षा के लिए अपना असली पासवर्ड किसी से साझा न करें।</div>
 </section>
 <div id="app" class="hidden">
 <div class="row card"><div><div class="muted" data-hi="लॉगिन अकाउंट" data-en="Signed-in account">लॉगिन अकाउंट</div><b id="userEmail"></b><div id="roleText" class="muted"></div></div><span class="pill">WORPRO</span></div>
+<button id="logoutBtn" class="secondary hidden">
+लॉगआउट
+</button>
 <div class="tabs" id="tabs">
 <button class="active" data-tab="customer" data-hi="ग्राहक बुकिंग" data-en="Customer booking">ग्राहक बुकिंग</button>
 <button data-tab="worker" data-hi="वर्कर" data-en="Worker">वर्कर</button>

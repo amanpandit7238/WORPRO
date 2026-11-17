@@ -5,21 +5,94 @@
 <meta name="theme-color" content="#102a43">
 <title>WORPRO — Service Booking</title>
 <style>
-:root{--navy:#102a43;--blue:#1769aa;--gold:#f2b544;--bg:#f3f6fa;--card:#fff;--text:#172b4d;--muted:#62748a;--line:#dce4ed;--red:#b42318;--green:#067647}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px system-ui,-apple-system,Segoe UI,sans-serif}
-header{background:linear-gradient(135deg,var(--navy),#1769aa);color:white;padding:22px 16px 26px}header .wrap,main{max-width:1000px;margin:auto}
-.brand{font-size:27px;font-weight:900;letter-spacing:1.5px}.tag{opacity:.9;margin-top:4px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-main{padding:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin:0 0 14px;box-shadow:0 5px 18px #102a430a}
-h2{font-size:20px;margin:0 0 12px}h3{font-size:16px;margin:0 0 8px}.muted{color:var(--muted);font-size:14px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-label{display:block;font-weight:650;font-size:14px;margin:10px 0 5px}input,select,textarea{width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:12px;font:inherit;background:white;color:var(--text)}textarea{min-height:78px}
-button{border:0;border-radius:10px;padding:11px 15px;font:inherit;font-weight:700;cursor:pointer;background:var(--blue);color:white}button.secondary{background:#e8eef5;color:var(--navy)}button.warn{background:#fff0ed;color:var(--red)}button:disabled{opacity:.5}
-.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.tabs button{background:#e4ebf3;color:var(--navy)}.tabs button.active{background:var(--navy);color:white}
-.notice{padding:12px;border-radius:10px;background:#fff7df;border:1px solid #f2d48a;margin:12px 0;font-size:14px}.success{background:#e9f8ef;border-color:#a6dfbb}.error{background:#fff0ed;border-color:#f2b8b5}
-.hidden{display:none!important}.pill{display:inline-block;padding:4px 9px;border-radius:99px;background:#e7eff8;font-size:12px;font-weight:700}.service{border:1px solid var(--line);border-radius:12px;padding:14px}.service .emoji{font-size:26px}.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.item{border-bottom:1px solid var(--line);padding:12px 0}.item:last-child{border-bottom:0}.footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
+
+:root{
+ --navy:#092c68;--blue:#075bd8;--blue2:#1678f2;--orange:#ff7100;
+ --bg:#f4f7fc;--card:#fff;--text:#14233d;--muted:#66758d;
+ --line:#e3eaf4;--red:#b42318;--green:#087443;
+ --shadow:0 14px 38px rgba(12,43,91,.08)
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(circle at 90% 0%,#e8f1ff 0,transparent 28%),var(--bg);
+ color:var(--text);font:15px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+header{position:relative;overflow:hidden;color:#fff;padding:22px 18px 30px;
+ background:linear-gradient(118deg,#08265c 0%,#075bd8 72%,#1478ee 100%)}
+header:after{content:"";position:absolute;width:270px;height:270px;border:34px solid rgba(255,255,255,.08);
+ border-radius:50%;right:-85px;top:-130px;pointer-events:none}
+header .wrap,main{max-width:1080px;margin:auto;position:relative;z-index:1}
+.top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.brandline{display:flex;align-items:center;gap:13px;min-width:0}
+.brand-logo{width:66px;height:66px;object-fit:cover;border-radius:18px;background:#fff;
+ box-shadow:0 8px 22px #001b4d44;border:2px solid #ffffff55}
+.brand{font-size:29px;line-height:1;font-weight:950;letter-spacing:1.4px}
+.brand span{color:#ff8a19}
+.tag{font-size:13px;color:#e8f1ff;margin-top:6px;letter-spacing:.2px}
+#lang{width:auto!important;min-width:105px;background:#fff;color:var(--navy);border:1px solid #ffffff80}
+main{padding:22px 16px 34px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:21px;margin:0 0 16px;box-shadow:var(--shadow)}
+h2{font-size:21px;letter-spacing:-.35px;margin:0 0 15px;color:var(--navy)}
+h3{font-size:16px;margin:0 0 10px;color:var(--navy)}
+.muted{color:var(--muted);font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:13px}
+label{display:block;font-weight:700;font-size:13px;margin:12px 0 6px;color:#34445e}
+input,select,textarea{width:100%;border:1px solid #d6dfeb;border-radius:12px;padding:13px 14px;font:inherit;
+ background:#fbfcff;color:var(--text);outline:none;transition:border .18s,box-shadow .18s}
+input:focus,select:focus,textarea:focus{border-color:var(--blue2);box-shadow:0 0 0 3px #1678f21a;background:#fff}
+textarea{min-height:88px;resize:vertical}
+button{border:0;border-radius:12px;padding:12px 17px;font:inherit;font-weight:750;cursor:pointer;
+ background:linear-gradient(110deg,var(--blue),var(--blue2));color:#fff;box-shadow:0 6px 14px #075bd829;
+ transition:transform .15s,filter .15s}
+button:hover{filter:brightness(1.04);transform:translateY(-1px)}
+button.secondary{background:#edf3fc;color:var(--navy);box-shadow:none;border:1px solid #dce7f7}
+button.warn{background:#fff0ed;color:var(--red);box-shadow:none}
+button:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}
+.tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0 0 16px;padding:7px;
+ background:#e8eff9;border:1px solid #dce6f4;border-radius:16px}
+.tabs button{background:transparent;color:#40516e;box-shadow:none;padding:11px 8px;font-size:13px}
+.tabs button.active{background:#fff;color:var(--blue);box-shadow:0 4px 12px #153b7018}
+.notice{padding:13px 15px;border-radius:13px;background:#fff7e8;border:1px solid #ffdfa7;margin:12px 0;font-size:13px}
+.notice.success{background:#eaf8f0;border-color:#b5e5c8}
+.notice.error{background:#fff0ed;border-color:#f2b8b5}
+.hidden{display:none!important}
+.pill{display:inline-block;padding:5px 10px;border-radius:99px;background:#eaf1fc;color:#174b96;font-size:11px;font-weight:800}
+.service{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fbfcff}
+.service .emoji{font-size:26px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.item{border-bottom:1px solid var(--line);padding:14px 0}
+.item:last-child{border-bottom:0}
+hr{border:0;border-top:1px solid var(--line);margin:20px 0}
+#auth{max-width:760px;margin:24px auto}
+#app>.row.card{align-items:center}
+#userEmail{overflow-wrap:anywhere}
+#logoutBtn{margin:0 0 16px}
+#tab-customer .muted{margin-top:12px}
+#tab-admin .notice.error{color:#8e241c}
+#status{padding:12px 14px;border-radius:12px;background:#f6f9fe}
+.footer{text-align:center;color:#8491a5;font-size:12px;padding:22px 10px}
+@media(max-width:620px){
+ header{padding:17px 15px 24px}
+ .brand-logo{width:55px;height:55px;border-radius:15px}
+ .brand{font-size:24px}
+ main{padding:16px 12px 28px}
+ .card{padding:17px;border-radius:17px}
+ .tabs{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .tabs button{font-size:12px}
+ h2{font-size:19px}
+}
+
 </style>
 </head>
 <body>
-<header><div class="wrap"><div class="top"><div><div class="brand">WORPRO</div><div class="tag" data-hi="आपके शहर की सर्विस, एक जगह" data-en="Local services, all in one place">आपके शहर की सर्विस, एक जगह</div></div><select id="lang" aria-label="Language" style="width:auto"><option value="hi">हिंदी</option><option value="en">English</option></select></div></div></header>
+<header><div class="wrap"><div class="top">
+<div class="brandline">
+<img class="brand-logo" src="assets/worpro-logo.webp" alt="WORPRO logo">
+<div><div class="brand">WOR<span>PRO</span></div>
+<div class="tag" data-hi="आपके शहर की सर्विस, एक जगह" data-en="Your trusted service partner">आपके शहर की सर्विस, एक जगह</div></div>
+</div>
+<select id="lang" aria-label="Language"><option value="hi">हिंदी</option><option value="en">English</option></select>
+</div></div></header>
 <main>
 <div id="setupNotice" class="notice"><b>सेटअप बाकी है:</b> यह WORPRO का शुरुआती वेब ऐप है। ऑनलाइन लॉगिन और डेटा के लिए README के अनुसार Supabase कॉन्फ़िगरेशन जोड़ें। बिना कॉन्फ़िगरेशन के केवल डेमो मोड चलेगा; यह लाइव बुकिंग सेवा नहीं है।</div>
 <section id="auth" class="card">
@@ -91,7 +164,7 @@ console.log("WORPRO: Supabase library loaded");
 const SUPABASE_URL = 'https://ejilquxcccxucnvktmgy.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_x6lS9XO1tokibmVGHm1f-Q_Qp0PmTGC';
 const configured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
-alert("WORPRO JavaScript चल रही है। Configured = " + configured);
+
   document.getElementById('status').textContent ='जाँच: Supabase कॉन्फ़िगरेशन ' + (configured ? 'मिला' : 'नहीं मिला');
 console.log("WORPRO Supabase configured:", configured);
  const supabase = configured ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
@@ -202,7 +275,7 @@ async function loadRole(){
  const {data,error}=await supabase.from('profiles').select('role,display_name').eq('id',currentUser.id).maybeSingle();
  if(error){currentRole='customer';$('roleText').textContent='';return;}
  currentRole=data?.role||'customer';$('roleText').textContent=say('भूमिका: ','Role: ')+currentRole;
- $('adminData').classList.toggle('hidden',currentRole!=='admin');$('adminLock').classList.toggle('hidden',currentRole==='admin');
+ $('adminData').classList.toggle('hidden',currentRole!=='admin');$('workerAdminList').classList.toggle('hidden',currentRole!=='admin');$('adminLock').classList.toggle('hidden',currentRole==='admin');
 }
   
 $('signupBtn').onclick = async () => {
@@ -273,7 +346,7 @@ $('workerApply').onclick=async()=>{if(!configured)return message('डेमो �
  const {error}=await supabase.from('worker_applications').insert(payload);
  if(error)return message('रजिस्ट्रेशन सेव नहीं हुआ: '+error.message,true);$('workerState').textContent='आवेदन भेज दिया गया है; एडमिन की मंज़ूरी बाकी है।';message('वर्कर आवेदन भेज दिया गया।');};
 async function loadOrders(){if(!configured||!currentUser)return;
- const {data,error}=await supabase.from('bookings').select('id,service_name,service_date,status,created_at').order('created_at',{ascending:false}).limit(50);
+ const {data,error}=await supabase.from('bookings').select('id,service_name,service_date,status,created_at').eq('customer_id',currentUser.id).order('created_at',{ascending:false}).limit(50);
  if(error){$('ordersList').textContent=error.message;return;}
  $('ordersList').innerHTML=data?.length?data.map(o=>`<div class="item"><div class="row"><b>${escapeHtml(o.service_name)}</b><span class="pill">${escapeHtml(o.status)}</span></div><div class="muted">ID: ${escapeHtml(o.id)} • ${escapeHtml(o.service_date||'तारीख तय नहीं')}</div></div>`).join(''):'अभी कोई बुकिंग नहीं है।';}
 function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}

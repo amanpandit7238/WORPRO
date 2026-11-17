@@ -278,6 +278,7 @@ async function loadOrders(){if(!configured||!currentUser)return;
  $('ordersList').innerHTML=data?.length?data.map(o=>`<div class="item"><div class="row"><b>${escapeHtml(o.service_name)}</b><span class="pill">${escapeHtml(o.status)}</span></div><div class="muted">ID: ${escapeHtml(o.id)} • ${escapeHtml(o.service_date||'तारीख तय नहीं')}</div></div>`).join(''):'अभी कोई बुकिंग नहीं है।';}
 function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 $('refreshBtn').onclick=loadOrders;
+
 async function loadWorkerApplications(){
   if(currentRole !== 'admin'){
     return message('अनुमति नहीं है।',true);
@@ -303,10 +304,60 @@ async function loadWorkerApplications(){
         <div>अनुभव: ${escapeHtml(w.experience_years)} वर्ष</div>
         <div>क्षेत्र: ${escapeHtml(w.area)}</div>
         <div>स्थिति: ${escapeHtml(w.status)}</div>
+        ${w.status === 'pending' ? `
+          <div class="actions">
+            <button data-worker-action="approved" data-worker-id="${escapeHtml(w.id)}">Approve</button>
+            <button class="secondary" data-worker-action="rejected" data-worker-id="${escapeHtml(w.id)}">Reject</button>
+          </div>
+        ` : ''}
       </div>
     `).join('')
     : 'कोई वर्कर रिक्वेस्ट नहीं मिली।';
+
+  $('workerAdminList').querySelectorAll('[data-worker-action]').forEach(btn=>{
+    btn.onclick=async()=>{
+      if(currentRole !== 'admin'){
+        return message('अनुमति नहीं है।',true);
+      }
+
+      const id=btn.dataset.workerId;
+      const newStatus=btn.dataset.workerAction;
+
+      if(!confirm(newStatus==='approved'
+        ? 'क्या इस वर्कर को मंजूरी देनी है?'
+        : 'क्या इस वर्कर का आवेदन अस्वीकार करना है?')){
+        return;
+      }
+
+      btn.disabled=true;
+
+      const {data,error}=await supabase
+        .from('worker_applications')
+        .update({status:newStatus})
+        .eq('id',id)
+        .eq('status','pending')
+        .select('id')
+        .maybeSingle();
+
+      if(error){
+        btn.disabled=false;
+        return message('स्टेटस अपडेट नहीं हुआ: '+error.message,true);
+      }
+
+      if(!data){
+        btn.disabled=false;
+        return message('रिकॉर्ड अपडेट नहीं हुआ। डेटाबेस की अनुमति जाँचें।',true);
+      }
+
+      message(newStatus==='approved'
+        ? 'वर्कर सफलतापूर्वक Approved हो गया।'
+        : 'वर्कर का आवेदन Reject कर दिया गया।');
+
+      await loadWorkerApplications();
+    };
+  });
 }
+
 $('loadAdmin').onclick=async()=>{if(currentRole!=='admin')return message('अनुमति नहीं है।',true)
   await loadWorkerApplications();
  const {data,error}=await supabase.from('admin_booking_view').select('*').order('created_at',{ascending:false}).limit(100);

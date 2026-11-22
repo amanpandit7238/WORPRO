@@ -645,7 +645,7 @@ async function loadCompletedWorkerJobs(){
 
   const {data,error}=await supabase
     .from('worker_booking_assignments')
-    .select('*')
+    .select('id,quote_status,worker_quoted_amount,admin_approved_amount')
     .eq('worker_id',currentUser.id)
     .eq('status','completed')
     .order('created_at',{ascending:false})
@@ -667,9 +667,51 @@ async function loadCompletedWorkerJobs(){
       <div>स्थिति: ${escapeHtml(job.quote_status||'कीमत बाकी')}</div>
       <div>वर्कर की बताई कीमत: ${escapeHtml(job.worker_quoted_amount??'अभी नहीं भेजी')}</div>
       <div>मंजूर कीमत: ${escapeHtml(job.admin_approved_amount??'अभी मंजूर नहीं')}</div>
+
+      ${
+        ['not_submitted','rejected'].includes(job.quote_status)
+        ? `
+          <label>काम की कीमत (₹)</label>
+          <input type="number" min="1" step="0.01"
+            data-quote-input="${escapeHtml(job.id)}"
+            placeholder="अपनी कीमत लिखें">
+
+          <button data-submit-quote="${escapeHtml(job.id)}">
+            कीमत एडमिन को भेजें
+          </button>
+        `
+        : ''
+      }
     </div>
   `).join('');
-}
+
+  box.querySelectorAll('[data-submit-quote]').forEach(btn=>{
+    btn.onclick=async()=>{
+      const id=btn.dataset.submitQuote;
+      const input=box.querySelector(`[data-quote-input="${id}"]`);
+      const amount=Number(input.value);
+
+      if(!Number.isFinite(amount)||amount<=0){
+        return message('कृपया सही कीमत दर्ज करें।',true);
+      }
+
+      btn.disabled=true;
+
+      const {error}=await supabase.rpc('submit_worker_quote',{
+        p_assignment_id:id,
+        p_amount:amount
+      });
+
+      if(error){
+        btn.disabled=false;
+        return message('कीमत नहीं भेजी गई: '+error.message,true);
+      }
+
+      message('कीमत एडमिन को भेज दी गई है।');
+      await loadCompletedWorkerJobs();
+    };
+  });
+ }
  $('workerRefreshBtn').onclick=loadWorkerDashboard;
 
 $('loadAdmin').onclick=async()=>{if(currentRole!=='admin')return message('अनुमति नहीं है।',true)

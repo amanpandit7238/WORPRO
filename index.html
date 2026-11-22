@@ -469,6 +469,110 @@ async function loadWorkerApplications(){
   });
 }
 
+async function loadWorkerDashboard(){
+  if(!currentUser){
+    return message('पहले लॉगिन करें।',true);
+  }
+
+  const {data:application,error:appError}=await supabase
+    .from('worker_applications')
+    .select('status')
+    .eq('user_id',currentUser.id)
+    .maybeSingle();
+
+  if(appError){
+    return message('वर्कर की स्थिति नहीं मिली: '+appError.message,true);
+  }
+
+  if(application?.status!=='approved'){
+    $('workerDashboard').classList.add('hidden');
+    return message('आपका वर्कर आवेदन अभी मंज़ूर नहीं हुआ है।',true);
+  }
+
+  $('workerDashboard').classList.remove('hidden');
+  await loadAvailableBookings();
+}
+
+async function loadAvailableBookings(){
+  if(!currentUser) return;
+
+  $('availableBookings').textContent='बुकिंग लोड हो रही हैं...';
+
+  const {data,error}=await supabase.rpc('get_available_bookings');
+
+  if(error){
+    $('availableBookings').textContent='बुकिंग नहीं मिली: '+error.message;
+    return;
+  }
+
+  if(!data || !data.length){
+    $('availableBookings').textContent='अभी कोई नई बुकिंग उपलब्ध नहीं है।';
+    return;
+  }
+
+  $('availableBookings').innerHTML=data.map(b=>`
+    <div class="item">
+      <b>${escapeHtml(b.service_name || 'नई बुकिंग')}</b>
+      <div>काम: ${escapeHtml(b.work_details || 'विवरण उपलब्ध नहीं')}</div>
+      <div>तारीख: ${escapeHtml(b.service_date || 'तय नहीं')}</div>
+      <div class="actions">
+        <button data-accept-booking="${escapeHtml(b.id)}">
+          Accept
+        </button>
+        <button class="secondary" data-reject-booking="${escapeHtml(b.id)}">
+          Reject
+        </button>
+      </div>
+    </div>
+  `).join('');
+
+  $('availableBookings').querySelectorAll('[data-accept-booking]').forEach(btn=>{
+    btn.onclick=async()=>{
+      const bookingId=btn.dataset.acceptBooking;
+
+      if(!confirm('क्या आप यह काम स्वीकार करना चाहते हैं?')) return;
+
+      btn.disabled=true;
+
+      const {error}=await supabase.rpc('accept_booking',{
+        p_booking_id:bookingId
+      });
+
+      if(error){
+        btn.disabled=false;
+        return message('बुकिंग स्वीकार नहीं हुई: '+error.message,true);
+      }
+
+      message('बुकिंग आपको मिल गई है।');
+      await loadAvailableBookings();
+    };
+  });
+
+  $('availableBookings').querySelectorAll('[data-reject-booking]').forEach(btn=>{
+    btn.onclick=async()=>{
+      const bookingId=btn.dataset.rejectBooking;
+
+      if(!confirm('क्या आप यह बुकिंग अस्वीकार करना चाहते हैं?')) return;
+
+      btn.disabled=true;
+
+      const {error}=await supabase.rpc('reject_booking',{
+        p_booking_id:bookingId
+      });
+
+      if(error){
+        btn.disabled=false;
+        return message('बुकिंग Reject नहीं हुई: '+error.message,true);
+      }
+
+      message('बुकिंग अस्वीकार कर दी गई।');
+      await loadAvailableBookings();
+    };
+  });
+}
+
+$('workerRefreshBtn').onclick=loadWorkerDashboard;
+
 $('loadAdmin').onclick=async()=>{if(currentRole!=='admin')return message('अनुमति नहीं है।',true)
   await loadWorkerApplications();
  const {data,error}=await supabase.from('admin_booking_view').select('*').order('created_at',{ascending:false}).limit(100);

@@ -213,8 +213,17 @@ function message(text, error=false){ $('message').textContent=text; $('message')
 function status(text){ $('status').textContent=text; }
 function tr(el){const hi=el.dataset.hi,en=el.dataset.en;if(hi&&en)el.textContent=language==='hi'?hi:en;}
 $('lang').addEventListener('change',e=>{language=e.target.value;document.documentElement.lang=language;document.querySelectorAll('[data-hi][data-en]').forEach(tr);});
-document.querySelectorAll('#tabs button').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('active',b===btn));['customer','worker','orders','admin'].forEach(t=>$('tab-'+t).classList.toggle('hidden',t!==btn.dataset.tab));}));
-function showPasswordRecovery() {
+document.querySelectorAll('#tabs button').forEach(btn=>btn.addEventListener('click',async()=>{
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('active',b===btn));
+  ['customer','worker','orders','admin'].forEach(t=>
+    $('tab-'+t).classList.toggle('hidden',t!==btn.dataset.tab)
+  );
+
+  if(btn.dataset.tab==='worker'){
+    await loadWorkerDashboard();
+  }
+}));
+ function showPasswordRecovery() {
   $('auth').classList.add('hidden');
   $('app').classList.add('hidden');
 

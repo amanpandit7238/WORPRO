@@ -712,6 +712,74 @@ async function loadCompletedWorkerJobs(){
     };
   });
  }
+async function loadPendingWorkerQuotes(){
+  if(currentRole!=='admin') return;
+
+  const box=$('adminList');
+  const {data,error}=await supabase
+    .from('worker_booking_assignments')
+    .select('id,worker_id,worker_quoted_amount,quote_status')
+    .eq('status','completed')
+    .eq('quote_status','pending')
+    .order('created_at',{ascending:false})
+    .limit(100);
+
+  if(error){
+    return message('वर्कर की कीमतें लोड नहीं हुईं: '+error.message,true);
+  }
+
+  if(!data || !data.length){
+    box.innerHTML+='<p>अभी कोई नई कीमत मंजूरी के लिए नहीं आई है।</p>';
+    return;
+  }
+
+  box.innerHTML+='<h3>वर्कर की भेजी हुई कीमतें</h3>';
+
+  box.innerHTML+=data.map(job=>`
+    <div class="item">
+      <b>वर्कर ID: ${escapeHtml(job.worker_id)}</b>
+      <div>वर्कर की कीमत: ₹${escapeHtml(job.worker_quoted_amount)}</div>
+
+      <label>मंजूर की जाने वाली कीमत (₹)</label>
+      <input type="number" min="1" step="0.01"
+        data-approved-amount="${escapeHtml(job.id)}"
+        value="${escapeHtml(job.worker_quoted_amount)}">
+
+      <button data-approve-quote="${escapeHtml(job.id)}">
+        कीमत मंजूर करें
+      </button>
+    </div>
+  `).join('');
+
+  box.querySelectorAll('[data-approve-quote]').forEach(btn=>{
+    btn.onclick=async()=>{
+      const id=btn.dataset.approveQuote;
+      const input=box.querySelector(`[data-approved-amount="${id}"]`);
+      const amount=Number(input.value);
+
+      if(!Number.isFinite(amount)||amount<=0){
+        return message('सही मंजूर कीमत दर्ज करें।',true);
+      }
+
+      if(!confirm('क्या आप यह कीमत मंजूर करना चाहते हैं?')) return;
+
+      btn.disabled=true;
+
+      const {error}=await supabase.rpc('approve_worker_quote',{
+        p_assignment_id:id,
+        p_approved_amount:amount
+      });
+
+      if(error){
+        btn.disabled=false;
+        return message('कीमत मंजूर नहीं हुई: '+error.message,true);
+      }
+
+      message('कीमत मंजूर हो गई है।');
+      await loadPendingWorkerQuotes();
+    };
+  });
+}
  $('workerRefreshBtn').onclick=loadWorkerDashboard;
 
 $('loadAdmin').onclick=async()=>{if(currentRole!=='admin')return message('अनुमति नहीं है।',true)

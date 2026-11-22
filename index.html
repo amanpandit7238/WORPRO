@@ -499,9 +499,11 @@ async function loadWorkerDashboard(){
   }
 
   $('workerDashboard').classList.remove('hidden');
-  await loadAvailableBookings();
-}
 
+  await loadAvailableBookings();
+  await loadActiveWorkerJob();
+  await loadCompletedWorkerJobs();
+ }
 async function loadAvailableBookings(){
   if(!currentUser) return;
 

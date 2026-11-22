@@ -582,7 +582,95 @@ async function loadAvailableBookings(){
   });
 }
 
-$('workerRefreshBtn').onclick=loadWorkerDashboard;
+async function loadActiveWorkerJob(){
+  const box=$('activeWorkerJob');
+
+  const {data,error}=await supabase
+    .from('worker_booking_assignments')
+    .select('*')
+    .eq('worker_id',currentUser.id)
+    .in('status',['accepted','in_progress'])
+    .limit(1);
+
+  if(error){
+    box.textContent='चालू काम लोड नहीं हुआ: '+error.message;
+    return;
+  }
+
+  if(!data || !data.length){
+    box.textContent='अभी कोई चालू काम नहीं है।';
+    return;
+  }
+
+  const job=data[0];
+
+  const {data:details,error:detailsError}=await supabase.rpc(
+    'get_assigned_booking_details',
+    {p_assignment_id:job.id}
+  );
+
+  if(detailsError){
+    box.textContent='काम की जानकारी नहीं मिली: '+detailsError.message;
+    return;
+  }
+
+  const info=Array.isArray(details)?details[0]:details;
+
+  box.innerHTML=`
+    <div class="item">
+      <b>ग्राहक: ${escapeHtml(info?.customer_name||'—')}</b>
+      <div>फोन: ${escapeHtml(info?.customer_phone||'—')}</div>
+      <div>पता: ${escapeHtml(info?.customer_address||info?.address||'—')}</div>
+      <div>काम: ${escapeHtml(info?.work_details||'—')}</div>
+      <button id="completeWorkerJobBtn">काम पूरा हुआ</button>
+    </div>
+  `;
+
+  $('completeWorkerJobBtn').onclick=async()=>{
+    if(!confirm('क्या आपने यह काम पूरा कर लिया है?'))return;
+
+    const {error}=await supabase.rpc('complete_worker_job',{
+      p_assignment_id:job.id
+    });
+
+    if(error)return message('काम पूरा नहीं हुआ: '+error.message,true);
+
+    message('काम पूरा दर्ज हो गया।');
+    await loadWorkerDashboard();
+  };
+}
+
+async function loadCompletedWorkerJobs(){
+  const box=$('completedWorkerJobs');
+
+  const {data,error}=await supabase
+    .from('worker_booking_assignments')
+    .select('*')
+    .eq('worker_id',currentUser.id)
+    .eq('status','completed')
+    .order('created_at',{ascending:false})
+    .limit(50);
+
+  if(error){
+    box.textContent='रिकॉर्ड लोड नहीं हुए: '+error.message;
+    return;
+  }
+
+  if(!data || !data.length){
+    box.textContent='अभी कोई रिकॉर्ड नहीं है।';
+    return;
+  }
+
+  box.innerHTML=data.map(job=>`
+    <div class="item">
+      <b>काम पूरा हुआ</b>
+      <div>स्थिति: ${escapeHtml(job.quote_status||'कीमत बाकी')}</div>
+      <div>वर्कर की बताई कीमत: ${escapeHtml(job.worker_quoted_amount??'अभी नहीं भेजी')}</div>
+      <div>मंजूर कीमत: ${escapeHtml(job.admin_approved_amount??'अभी मंजूर नहीं')}</div>
+    </div>
+  `).join('');
+}
+ $('workerRefreshBtn').onclick=loadWorkerDashboard;
 
 $('loadAdmin').onclick=async()=>{if(currentRole!=='admin')return message('अनुमति नहीं है।',true)
   await loadWorkerApplications();

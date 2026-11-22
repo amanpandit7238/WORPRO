@@ -137,6 +137,44 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
 <div class="grid"><div><label data-hi="पूरा नाम" data-en="Full name">पूरा नाम</label><input id="workerName" maxlength="100"></div><div><label data-hi="मोबाइल नंबर" data-en="Phone number">मोबाइल नंबर</label><input id="workerPhone" inputmode="tel" maxlength="15"></div><div><label data-hi="सर्विस" data-en="Service">सर्विस</label><select id="workerService"><option>Plumbing</option><option>Electrician</option><option>AC Repair</option><option>Carpenter</option><option>Painting</option><option>Cleaning</option><option>Appliance Repair</option><option>Other</option></select></div><div><label data-hi="अनुभव (वर्ष)" data-en="Experience (years)">अनुभव (वर्ष)</label><input id="experience" type="number" min="0" max="60"></div></div>
 <label data-hi="इलाका" data-en="Area">इलाका</label><input id="workerArea" maxlength="150">
 <div class="actions"><button id="workerApply" data-hi="रजिस्ट्रेशन भेजें" data-en="Submit registration">रजिस्ट्रेशन भेजें</button></div><div id="workerState" class="muted"></div>
+
+<hr>
+
+<h3>वर्कर डैशबोर्ड / Worker Dashboard</h3>
+
+<div id="workerDashboard" class="hidden">
+
+  <div class="notice success">
+    यहाँ आपकी सर्विस से जुड़ी नई बुकिंग दिखाई देंगी।
+  </div>
+
+  <div class="actions">
+    <button id="workerRefreshBtn" class="secondary">
+      नई बुकिंग देखें / Refresh
+    </button>
+  </div>
+
+  <h3>नई बुकिंग</h3>
+  <div id="availableBookings">
+    बुकिंग लोड नहीं हुई है।
+  </div>
+
+  <hr>
+
+  <h3>मेरा चालू काम</h3>
+  <div id="activeWorkerJob">
+    अभी कोई चालू काम नहीं है।
+  </div>
+
+  <hr>
+
+  <h3>पूरा किया गया काम और कीमत</h3>
+  <div id="completedWorkerJobs">
+    अभी कोई रिकॉर्ड नहीं है।
+  </div>
+
+</div>
+
 </section>
 <section id="tab-orders" class="card hidden"><h2 data-hi="मेरी बुकिंग" data-en="My bookings">मेरी बुकिंग</h2><div class="actions"><button id="refreshBtn" class="secondary" data-hi="रीफ्रेश" data-en="Refresh">रीफ्रेश</button></div><div id="ordersList" class="muted">अभी कोई रिकॉर्ड लोड नहीं हुआ।</div></section>
 <section id="tab-admin" class="card hidden">

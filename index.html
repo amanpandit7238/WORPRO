@@ -808,6 +808,17 @@ async function loadAdminFinance(){
     return;
   }
 
+ const workerIds=[...new Set(data.map(j=>j.worker_id))];
+
+const {data:workers,error:workerError}=await supabase
+  .from('worker_applications')
+  .select('user_id,full_name')
+  .in('user_id',workerIds);
+
+const workerNames={};
+(workers||[]).forEach(w=>{
+  workerNames[w.user_id]=w.full_name;
+});
   const totalAmount=data.reduce((sum,j)=>sum+Number(j.admin_approved_amount||0),0);
   const totalWorker=data.reduce((sum,j)=>sum+Number(j.worker_share_amount||0),0);
   const totalWorpro=data.reduce((sum,j)=>sum+Number(j.worpro_commission_amount||0),0);

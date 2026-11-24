@@ -864,6 +864,7 @@ $('loadAdmin').onclick=async()=>{
     : 'कोई बुकिंग नहीं मिली।';
 
   await loadPendingWorkerQuotes();
+await loadAdminFinance();
 };
  if (configured) {
   supabase.auth.onAuthStateChange((event, session) => {

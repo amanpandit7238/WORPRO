@@ -784,6 +784,53 @@ async function loadPendingWorkerQuotes(){
     };
   });
 }
+async function loadAdminFinance(){
+  if(currentRole!=='admin') return;
+
+  const box=$('adminFinanceList');
+  box.textContent='कमाई का हिसाब लोड हो रहा है...';
+
+  const {data,error}=await supabase
+    .from('worker_booking_assignments')
+    .select('id,worker_id,admin_approved_amount,worker_share_amount,worpro_commission_amount')
+    .eq('status','completed')
+    .eq('quote_status','approved')
+    .order('created_at',{ascending:false})
+    .limit(100);
+
+  if(error){
+    box.textContent='कमाई का हिसाब नहीं मिला: '+error.message;
+    return;
+  }
+
+  if(!data || !data.length){
+    box.textContent='अभी कोई मंजूर कीमत उपलब्ध नहीं है।';
+    return;
+  }
+
+  const totalAmount=data.reduce((sum,j)=>sum+Number(j.admin_approved_amount||0),0);
+  const totalWorker=data.reduce((sum,j)=>sum+Number(j.worker_share_amount||0),0);
+  const totalWorpro=data.reduce((sum,j)=>sum+Number(j.worpro_commission_amount||0),0);
+
+  box.innerHTML=`
+    <div class="item">
+      <b>कुल मंजूर कीमत: ₹${totalAmount.toFixed(2)}</b>
+      <div>वर्कर का कुल हिस्सा (70%): ₹${totalWorker.toFixed(2)}</div>
+      <div>WORPRO का कुल कमीशन (30%): ₹${totalWorpro.toFixed(2)}</div>
+    </div>
+
+    <h3>काम के अनुसार हिसाब</h3>
+
+    ${data.map(j=>`
+      <div class="item">
+        <b>वर्कर ID: ${escapeHtml(j.worker_id)}</b>
+        <div>मंजूर कीमत: ₹${Number(j.admin_approved_amount||0).toFixed(2)}</div>
+        <div>वर्कर का हिस्सा: ₹${Number(j.worker_share_amount||0).toFixed(2)}</div>
+        <div>WORPRO कमीशन: ₹${Number(j.worpro_commission_amount||0).toFixed(2)}</div>
+      </div>
+    `).join('')}
+  `;
+ }
  $('workerRefreshBtn').onclick=loadWorkerDashboard;
 
 $('loadAdmin').onclick=async()=>{

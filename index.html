@@ -398,6 +398,18 @@ $('workerApply').onclick=async()=>{if(!configured)return message('डेमो �
  if(error)return message('रजिस्ट्रेशन सेव नहीं हुआ: '+error.message,true);$('workerState').textContent='आवेदन भेज दिया गया है; एडमिन की मंज़ूरी बाकी है।';message('वर्कर आवेदन भेज दिया गया।');};
 async function loadOrders(){if(!configured||!currentUser)return;
  const {data,error}=await supabase.from('bookings').select('id,service_name,service_date,status,created_at').eq('customer_id',currentUser.id).order('created_at',{ascending:false}).limit(50);
+const {data:workerData,error:workerError}=await supabase
+  .rpc('get_customer_booking_workers');
+
+if(workerError){
+  $('ordersList').textContent='वर्कर की जानकारी नहीं मिली: '+workerError.message;
+  return;
+}
+
+const workerMap={};
+(workerData||[]).forEach(w=>{
+  workerMap[w.booking_id]=w.worker_name;
+});
  if(error){$('ordersList').textContent=error.message;return;}
  $('ordersList').innerHTML=data?.length?data.map(o=>`<div class="item"><div class="row"><b>${escapeHtml(o.service_name)}</b><span class="pill">${escapeHtml(o.status)}</span></div><div class="muted">ID: ${escapeHtml(o.id)} • ${escapeHtml(o.service_date||'तारीख तय नहीं')}</div></div>`).join(''):'अभी कोई बुकिंग नहीं है।';}
 function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}

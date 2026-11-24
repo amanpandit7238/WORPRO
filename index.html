@@ -834,7 +834,8 @@ const workerNames={};
 
     ${data.map(j=>`
       <div class="item">
-        <b>वर्कर ID: ${escapeHtml(j.worker_id)}</b>
+        <b>वर्कर: ${escapeHtml(workerNames[j.worker_id]||'नाम उपलब्ध नहीं')}</b>
+<div>वर्कर ID: ${escapeHtml(j.worker_id)}</div>
         <div>मंजूर कीमत: ₹${Number(j.admin_approved_amount||0).toFixed(2)}</div>
         <div>वर्कर का हिस्सा: ₹${Number(j.worker_share_amount||0).toFixed(2)}</div>
         <div>WORPRO कमीशन: ₹${Number(j.worpro_commission_amount||0).toFixed(2)}</div>
